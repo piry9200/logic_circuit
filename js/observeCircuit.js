@@ -4,9 +4,42 @@
 var element = document.getElementById('circuit');
 
 let chosen_buttons = []; //グローバル 選択された論理ゲートをオブジェクトのまま保持
+let lines = {}; //グローバル　回路を結ぶ線を保持
 
 //MutationObserver（インスタンス）の作成
 var mo = new MutationObserver(function(record, observer) { //変化した際の処理を記述
+
+
+    //以下の処理は、追加された論理ゲートをcircuit内で移動できるようにするための処理。追加されるたびに設定し直す。
+    let gates = document.getElementsByClassName("gate_parent");
+    let draggable = [];
+
+    //マウスが要素内で押されたとき、又はタッチされたとき発火
+    for(let gate of gates) {
+        draggable = new PlainDraggable(gate,{
+            onDragStart: function(){
+                console.log("starrrt")
+            },
+            onMove: function () {
+                if(gate.dataset.type == "AND" || gate.dataset.type == "OR"){
+                    lines[gate.dataset.connecting1].position();
+                    lines[gate.dataset.connecting2].position();
+                    lines[gate.dataset.connecting3].position();
+                }else{
+                    lines[gate.dataset.connecting1].position();
+                    lines[gate.dataset.connecting2].position();
+                }
+                
+                console.log("mooooove");
+            },
+            onDragEnd: function () {
+                console.log("end");
+            }
+        });
+    }
+
+
+
     let buttons = document.getElementsByClassName("ioButton");
     
     for(let button of buttons){ //クリックで背景色をピンクにするイベントを設置
@@ -28,6 +61,7 @@ var mo = new MutationObserver(function(record, observer) { //変化した際の�
                         event.target.parentNode.dataset.input1 != null && event.target.parentNode.dataset.input2 != undefined && event.target.parentNode.dataset.input2 != "undefined" &&
                         event.target.parentNode.dataset.input2 != null)
                         {//input1 input2が定義されていない（undefined,null)ときは実行しない
+                            console.log("calc!");
                             for(let i=0; i<event.target.parentNode.dataset.input1.length; i=i+2){
                                 answer1.push(event.target.parentNode.dataset.input1[i] * event.target.parentNode.dataset.input2[i]);
                             }
@@ -82,19 +116,77 @@ var mo = new MutationObserver(function(record, observer) { //変化した際の�
                     chosen_buttons[1].parentNode.dataset.input = chosen_buttons[1].dataset.input;
                 }
                 //------------------------------------------------------------------------------
-                for(let chosen_button of chosen_buttons){
+                for(let chosen_button of chosen_buttons){ //色を透明に戻す
                     chosen_button.style.backgroundColor = "";
                 }
+                //線を引いて、引いた線に関わるオブジェクトたちに線の情報をセット
+                let line = setLines(chosen_buttons[0], chosen_buttons[1]);
+                let line_id = line._id;
+                lines[line_id] = line;
+                chosen_buttons[0].dataset.line_start = line_id;
+                chosen_buttons[1].dataset.line_end = line_id;
+                //-----------------gate_parentに接続中の線の情報を送る-----------------------
+                switch(chosen_buttons[0].parentNode.dataset.type){
+                    case "AND":
+                    case "OR":
+                        if(chosen_buttons[0].parentNode.dataset.connecting1 == undefined || chosen_buttons[0].parentNode.dataset.connecting1 == "undefined" ||
+                        chosen_buttons[0].parentNode.dataset.connecting1 == null){ //parentNode.dataset.connecting1が定義されいないときに実行
+                            chosen_buttons[0].parentNode.dataset.connecting1 = chosen_buttons[0].dataset.line_start
+                        }else if(chosen_buttons[0].parentNode.dataset.connecting2 == undefined || chosen_buttons[0].parentNode.dataset.connecting2 == "undefined" ||
+                        chosen_buttons[0].parentNode.dataset.connecting2 == null){ //parentNode.dataset.connecting2が定義されいないときに実行
+                            chosen_buttons[0].parentNode.dataset.connecting2 = chosen_buttons[0].dataset.line_start
+                        }else{
+                            chosen_buttons[0].parentNode.dataset.connecting3 = chosen_buttons[0].dataset.line_start
+                        }
+                        break;
+                    case "NOT":
+                        if(chosen_buttons[0].parentNode.dataset.connecting1 == undefined || chosen_buttons[0].parentNode.dataset.connecting1 == "undefined" ||
+                        chosen_buttons[0].parentNode.dataset.connecting1 == null){ //parentNode.dataset.connecting1が定義されいないときに実行
+                            chosen_buttons[0].parentNode.dataset.connecting1 = chosen_buttons[0].dataset.line_start
+                        }else{
+                            chosen_buttons[0].parentNode.dataset.connecting2 = chosen_buttons[0].dataset.line_start
+                        }
+                        break;
+                    default: break;
+                }
+                // ↑↑↑↑↑結線の左側に対して処理　        結線の右側に対して処理↓↓↓↓↓↓↓↓
+                switch(chosen_buttons[1].parentNode.dataset.type){
+                    case "AND":
+                    case "OR":
+                        if(chosen_buttons[1].parentNode.dataset.connecting1 == undefined || chosen_buttons[1].parentNode.dataset.connecting1 == "undefined" ||
+                        chosen_buttons[1].parentNode.dataset.connecting1 == null){ //parentNode.dataset.connecting1が定義されいないときに実行
+                            console.log("deketeruyooo");
+                            chosen_buttons[1].parentNode.dataset.connecting1 = chosen_buttons[1].dataset.line_end;
+                        }else if(chosen_buttons[1].parentNode.dataset.connecting2 == undefined || chosen_buttons[1].parentNode.dataset.connecting2 == "undefined" ||
+                        chosen_buttons[1].parentNode.dataset.connecting2 == null){ //parentNode.dataset.connecting2が定義されいないときに実行
+                            chosen_buttons[1].parentNode.dataset.connecting2 = chosen_buttons[1].dataset.line_end;
+                        }else{
+                            chosen_buttons[1].parentNode.dataset.connecting3 = chosen_buttons[1].dataset.line_end;
+                        }
+                        break;
+                    case "NOT":
+                        if(chosen_buttons[1].parentNode.dataset.connecting1 == undefined || chosen_buttons[1].parentNode.dataset.connecting1 == "undefined" ||
+                        chosen_buttons[1].parentNode.dataset.connecting1 == null){ //parentNode.dataset.connecting1が定義されいないときに実行
+                            chosen_buttons[1].parentNode.dataset.connecting1 = chosen_buttons[1].dataset.line_end;
+                        }else{
+                            chosen_buttons[1].parentNode.dataset.connecting2 = chosen_buttons[1].dataset.line_end;
+                        }
+                    default: break;
+                //------------↑↑↑↑↑↑gate_parentに接続中の線の情報を送る↑↑↑↑↑↑----------------------------------------
+
+                }
+
                 chosen_buttons.splice(0) //すべての要素を削除
             }
         })
+
     }
 });
 
 //出力ボタンにイベントを設定
 let do_output_button = document.getElementById("do_output");
 do_output_button.addEventListener("click", (event) => {
-    if(event.target.parentNode.dataset.input == event.target.parentNode.dataset.input){
+    if(event.target.parentNode.dataset.input == event.target.parentNode.dataset.output){
         window.alert("今日はここまで");
     }else{
         window.alert("うわああああああああばぐあああああああああああ");
@@ -105,18 +197,24 @@ do_output_button.addEventListener("click", (event) => {
 
 function setLines(startElement, endElement){ //
     console.log("関数を実行しますの\n");
-    new LeaderLine(startElement,
+    let line_object = new LeaderLine(startElement,
         LeaderLine.pointAnchor(endElement, {x:"8px", y:"8px"})
     );
+    return line_object;
 
 }
 
+/*
 let button_test = document.getElementById("button_test");
 button_test.addEventListener("click", (event) => {
-    let test_gates = document.getElementsByClassName("gate");
-    setLines(test_gates[0],test_gates[4]);
+    let test_gates = document.getElementsByClassName("ioButton");
+    let line = setLines(test_gates[0], test_gates[4]);
+    let line_id = line.position()._id;
+    lines[line_id] = line;
+    console.log(lines);
     }
 );
+*/
 
 
 //監視する「もの」の指定（必ず1つ以上trueにする）
