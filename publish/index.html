@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>logic_circuit_puzle</title>
+        <link rel="stylesheet", href="../css/index.css">
+        <script src="../libraries/anseki-leader-line-6c26a9d/leader-line.min.js"></script>
+    </head>
+    <body>
+        <div id="circuit_parent" style="margin-top: 30px;">
+            <div id="table">
+                <table border="1" style="width: 100px;">
+                    <tr>
+                        <td>A</td>
+                        <td>B</td>
+                        <td>C</td>
+                    </tr>
+                    <tr class="inputs">
+                        
+                    </tr>
+                    <tr class="inputs">
+                        
+                    </tr>
+                    <tr class="inputs">
+                        
+                    </tr>
+                    <tr class="inputs">
+                        
+                    </tr>
+                    <tr class="inputs">
+                        
+                    </tr>
+                    <tr class="inputs">
+                        
+                    </tr>
+                    <tr class="inputs">
+                        
+                    </tr>
+                    <tr class="inputs">
+                        
+                    </tr>
+                </table>
+
+                <table border="1" style="width: 20px;">
+                    <tr>
+                        <td>X</td>
+                    </tr>
+                    <tr class="outputs">
+                        
+                    </tr>
+                    <tr class="outputs">
+                        
+                    </tr>
+                    <tr class="outputs">
+                        
+                    </tr>
+                    <tr class="outputs">
+                        
+                    </tr>
+                    <tr class="outputs">
+                        
+                    </tr>
+                    <tr class="outputs">
+                        
+                    </tr>
+                    <tr class="outputs">
+                        
+                    </tr>
+                    <tr class="outputs">
+                        
+                    </tr>
+                </table>
+                <button id="button">IOset</button>
+                <button id="button_test">tset</button>
+            </div>
+            <div id="circuit">
+                <div class="gate" style="margin-top: 130px; margin-left: 50px; width: 20px;" data-type="input">
+                    A
+                </div>
+                <div class="gate" style="margin-top: 150px; margin-left: 50px; width: 20px" data-type="input">
+                    B
+                </div>
+                <div class="gate" style="margin-top: 150px; margin-left: 50px; width: 20px" data-type="input">
+                    C
+                </div>
+                <div id="output" class="gate" style="position: absolute; left: 1100px; top: 330px; width: 20px" data-type="output">
+                    X
+                </div>
+            </div>
+            <div id="tools_parent">
+                <img src="../images/AND.png" width="200px" height="200px" style="margin-left: 40px;" id="AND" class="original_gate" data-type="AND">
+                <img src="../images/OR.png" width="200px" height="200px" style="margin-left: 40px;" id="OR" class="original_gate" data-type="OR">
+                <img src="../images/NOT.png" width="200px" height="200px" style="margin-left: 40px;" id="NOT" class="original_gate" data-type="NOT">
+            </div>
+        </div>
+        <script src="../js/setIOStatus.js"></script>
+        <script src="../js/setLogicGate.js"></script>
+        <script src="../js/controlMoveInCircuit.js"></script>
+        <script src="../js/connectGates.js"></script>
+    </body>
+</html>

@@ -1,0 +1,28 @@
+@charset "utf-8";
+
+body{
+    background-color: aliceblue;
+}
+
+#circuit_parent {
+    display: grid;
+    grid-template-columns: 150px 1025px 275px;
+    grid-template-rows: 650px;
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+    }
+
+#circuit {
+    grid-column: 2/3;
+    background-color: white;
+}
+
+#tools_parent {
+    grid-column: 3/4;
+    display: grid;
+    grid-template-columns: 275px;
+    grid-template-rows: repeat(3, 233px);
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+    background-color: aliceblue;
+    }
