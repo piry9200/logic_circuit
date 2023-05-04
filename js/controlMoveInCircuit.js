@@ -7,7 +7,7 @@ var element = document.getElementById('circuit');
 var mo = new MutationObserver(function(record, observer) { //変化した際の処理を記述
 
     //以下の処理は、追加された論理ゲートをcircuit内で移動できるようにするための処理。追加されるたびに設定し直す。
-    let gates = document.getElementsByClassName("gate");
+    let gates = document.getElementsByClassName("gate_parent");
     let draggable = [];
     //マウスが要素内で押されたとき、又はタッチされたとき発火
     for(var i = 0; i < gates.length; i++) {

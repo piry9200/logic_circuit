@@ -14,7 +14,7 @@ function setInputs(){ //真理値表の作成と各インプットオブジェ�
         }
     }
     
-    const input_objects = document.getElementsByClassName("gate"); //circuit内のインプラントオブジェクトに値をdatasetで与える
+    const input_objects = document.getElementsByClassName("ioButton"); //circuit内のインプラントオブジェクトに値をdatasetで与える
     for(let i=0; i<3; i++){
         input_objects[i].dataset.timechart = inputs[i];
     }

@@ -3,85 +3,67 @@
 //監視する要素の指定
 var element = document.getElementById('circuit');
 
-let chosen_gates = []; //グローバル 選択された論理ゲートをオブジェクトのまま保持
+let chosen_buttons = []; //グローバル 選択された論理ゲートをオブジェクトのまま保持
 
 //MutationObserver（インスタンス）の作成
 var mo = new MutationObserver(function(record, observer) { //変化した際の処理を記述
-    let gates = document.getElementsByClassName("gate");
+    let buttons = document.getElementsByClassName("ioButton");
     
-    for(let gate of gates){ //ダブルクリックで背景色をピンクにするイベントを設置
-        if (gate.dataset.event) { //addEventListnerの重複を回避
+    for(let button of buttons){ //ダブルクリックで背景色をピンクにするイベントを設置
+        if (button.dataset.event) { //addEventListnerの重複を回避
             continue;
         }
-        gate.dataset.event = true //イベントが登録されいることを示す
-        gate.addEventListener("dblclick", (event) => { //ダブルクリックされたら、そのオブジェクトをピンクにすると同時に、回路内に他にピンクのやつがいないかどうかを判定
-            if(event.target.style.backgroundColor != "pink"){
+        button.dataset.event = true //イベントが登録されいることを示す
+        button.addEventListener("click", (event) => { //クリックされたら、そのオブジェクトをピンクにすると同時に、回路内に他にピンクのやつがいないかどうかを判定
+            if(event.target.style.backgroundColor != "pink"){ //クリックされたボタンがピンク色じゃない場合ピンクにする
                 event.target.style.backgroundColor = "pink";
-                chosen_gates.push(event.target);
+                chosen_buttons.push(event.target);
             }
-            if(chosen_gates.length == 2){ //選択されている二つのゲートに対しての処理
-                let leftside_Xcoordinate = chosen_gates[0].getBoundingClientRect().left;
-                if(leftside_Xcoordinate > chosen_gates[1].getBoundingClientRect().left){ //chosen_gatesの[0]の方が左側にあるようにする
-                    let temp = chosen_gates[1];
-                    chosen_gates[1] = chosen_gates[0];
-                    chosen_gates[0] = temp;
-                }
-                
-                switch(chosen_gates[1].dataset.type){ //右側にある論理ゲートによって処理を変える 左側からは出力のみなのですべてdata-timechartから
+
+            if(event.target.dataset.button_type == "output"){ //outputボタンが選択されたときに実行。入力されている信号から出力用の信号を計算する。
+                switch(event.target.parentNode.dataset.type){
                     case "AND":
-                        let answer1 = []; //二つのインプットの計算結果を入れる用
-                        if(chosen_gates[1].dataset.input1 == undefined || chosen_gates[1].dataset.input1 == "undefined" || chosen_gates[1].dataset.input1 == null){
-                            chosen_gates[1].dataset.input1 = chosen_gates[0].dataset.timechart;
-                        }else{
-                            chosen_gates[1].dataset.input2 = chosen_gates[0].dataset.timechart;
-                            for(let i=0; i<chosen_gates[1].dataset.input2.length; i = i+2){
-                                answer1.push(chosen_gates[1].dataset.input1[i] * chosen_gates[1].dataset.input2[i]);
+                        let answer1 = [] //計算結果を入れる用
+                        if(event.target.parentNode.dataset.input1 != undefined && event.target.parentNode.dataset.input1 != "undefined" &&
+                        event.target.parentNode.dataset.input1 != null && event.target.parentNode.dataset.input2 != undefined && event.target.parentNode.dataset.input2 != "undefined" &&
+                        event.target.parentNode.dataset.input2 != null)
+                        {//input1 input2が定義されていない（undefined,null)のときは実行しない
+                            for(let i=0; i<event.target.parentNode.dataset.input1.length; i=i+2){
+                                console.log("セット！")
+                                answer1.push(event.target.parentNode.dataset.input1[i] * event.target.parentNode.dataset.input2[i]);
                             }
-                            chosen_gates[1].dataset.timechart = answer1;
+                            event.target.dataset.timechart = answer1; //outputボタンに計算結果(timechart)を設定
                         }
-                            break;
+                        break
                     case "OR":
-                        let answer2 = []; //二つのインプットの計算結果を入れる用
-                        if(chosen_gates[1].dataset.input1 == undefined || chosen_gates[1].dataset.input1 == "undefined" || chosen_gates[1].dataset.input1 == null){
-                            chosen_gates[1].dataset.input1 = chosen_gates[0].dataset.timechart;
-                        }else{
-                            chosen_gates[1].dataset.input2 = chosen_gates[0].dataset.timechart;
-                            for(let i=0; i<chosen_gates[1].dataset.input2.length; i = i+2){
-                                if(chosen_gates[1].dataset.input1[i] + chosen_gates[1].dataset.input2[i] >= 1){
-                                    answer2.push(1);
-                                }else{
-                                    answer2.push(0);
-                                }
-                            }
-                            chosen_gates[1].dataset.timechart = answer2;
-                        }
-                            break;
+                        break;
                     case "NOT":
-                        let answer3 = []; //計算結果を入れる用
-                        chosen_gates[1].dataset.input1 = chosen_gates[0].dataset.timechart;
-                        for(let i=0; i<chosen_gates[1].dataset.input1.length; i = i+2){
-                            answer3.push(chosen_gates[1].dataset.input1[i] == 1 ? 0 : 1);
-                        }
-                        chosen_gates[1].dataset.timechart = answer3;
-                            break;
-                    case "output":
-                        let flag = 0;
-                        for(let i=0; i<chosen_gates[1].dataset.output.length; i = i+2){
-                            if(chosen_gates[0].dataset.timechart[i] != chosen_gates[1].dataset.output[i]){
-                                flag = 1;
-                            }
-                        }
-                        if(flag == 1){
-                            window.alert("うわあああああああああ");
-                        }else{
-                            window.alert("もう寝ろ");
-                        }
+                        break;
+                }
+            }
+
+            if(chosen_buttons.length == 2){ //二つ選択されたときに実行。選択されている二つのゲートに対しての処理
+                let leftside_Xcoordinate = chosen_buttons[0].getBoundingClientRect().left;
+                if(leftside_Xcoordinate > chosen_buttons[1].getBoundingClientRect().left){ //chosen_buttonsの[0]の方が左側にあるようにする
+                    let temp = chosen_buttons[1];
+                    chosen_buttons[1] = chosen_buttons[0];
+                    chosen_buttons[0] = temp;
+                }
+                //左(timechart)から右( input(1 or 2) )に代入
+                chosen_buttons[1].dataset.input = chosen_buttons[0].dataset.timechart; //inputボタンに信号を代入
+                //↓gate_parentのdatasetにinput1,input2として保持させる
+                if(chosen_buttons[1].dataset.button_type == "input1"){ //input1からgate_parentのdataset.input1に代入
+                    console.log("hiiiii");
+                    chosen_buttons[1].parentNode.dataset.input1 = chosen_buttons[1].dataset.input;
+                }else if(chosen_buttons[1].dataset.button_type == "input2"){ //input2からgate_parentのdataset.input1に代入
+                    console.log("uiiiii");
+                    chosen_buttons[1].parentNode.dataset.input2 = chosen_buttons[1].dataset.input;
                 }
 
-                for(let chosen_gate of chosen_gates){
-                    chosen_gate.style.backgroundColor = "";
+                for(let chosen_button of chosen_buttons){
+                    chosen_button.style.backgroundColor = "";
                 }
-                chosen_gates.splice(0) //すべての要素を削除
+                chosen_buttons.splice(0) //すべての要素を削除
             }
         })
     }
