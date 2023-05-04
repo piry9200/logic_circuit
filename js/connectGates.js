@@ -9,7 +9,7 @@ let chosen_buttons = []; //グローバル 選択された論理ゲートをオ�
 var mo = new MutationObserver(function(record, observer) { //変化した際の処理を記述
     let buttons = document.getElementsByClassName("ioButton");
     
-    for(let button of buttons){ //ダブルクリックで背景色をピンクにするイベントを設置
+    for(let button of buttons){ //クリックで背景色をピンクにするイベントを設置
         if (button.dataset.event) { //addEventListnerの重複を回避
             continue;
         }
@@ -27,17 +27,37 @@ var mo = new MutationObserver(function(record, observer) { //変化した際の�
                         if(event.target.parentNode.dataset.input1 != undefined && event.target.parentNode.dataset.input1 != "undefined" &&
                         event.target.parentNode.dataset.input1 != null && event.target.parentNode.dataset.input2 != undefined && event.target.parentNode.dataset.input2 != "undefined" &&
                         event.target.parentNode.dataset.input2 != null)
-                        {//input1 input2が定義されていない（undefined,null)のときは実行しない
+                        {//input1 input2が定義されていない（undefined,null)ときは実行しない
                             for(let i=0; i<event.target.parentNode.dataset.input1.length; i=i+2){
-                                console.log("セット！")
                                 answer1.push(event.target.parentNode.dataset.input1[i] * event.target.parentNode.dataset.input2[i]);
                             }
                             event.target.dataset.timechart = answer1; //outputボタンに計算結果(timechart)を設定
                         }
                         break
                     case "OR":
+                        let answer2 = [] //計算結果を入れる用
+                        if(event.target.parentNode.dataset.input1 != undefined && event.target.parentNode.dataset.input1 != "undefined" &&
+                        event.target.parentNode.dataset.input1 != null && event.target.parentNode.dataset.input2 != undefined && event.target.parentNode.dataset.input2 != "undefined" &&
+                        event.target.parentNode.dataset.input2 != null)
+                        {//input1 input2が定義されていない（undefined,null)ときは実行しない
+                            for(let i=0; i<event.target.parentNode.dataset.input1.length; i=i+2){
+                                let num = event.target.parentNode.dataset.input1[i] + event.target.parentNode.dataset.input2[i];
+                                answer2.push( num >= 1 ? 1 : 0); //二つのインプットの和が１以上だったら１をプッシュ
+                            }
+                            event.target.dataset.timechart = answer2; //outputボタンに計算結果(timechart)を設定
+                        }
                         break;
                     case "NOT":
+                        let answer3 = [] //計算結果を入れる用
+                        if(event.target.parentNode.dataset.input1 != undefined && event.target.parentNode.dataset.input1 != "undefined" &&
+                        event.target.parentNode.dataset.input1 != null)
+                        {//input1 が定義されていない（undefined,null)ときは実行しない
+                            for(let i=0; i<event.target.parentNode.dataset.input1.length; i=i+2){
+                                let num = event.target.parentNode.dataset.input1[i]
+                                answer3.push( num == 1 ? 0 : 1); //インプットが１だったら0,0だったら1をプッシュ
+                            }
+                            event.target.dataset.timechart = answer3; //outputボタンに計算結果(timechart)を設定
+                        }
                         break;
                 }
             }
@@ -51,15 +71,17 @@ var mo = new MutationObserver(function(record, observer) { //変化した際の�
                 }
                 //左(timechart)から右( input(1 or 2) )に代入
                 chosen_buttons[1].dataset.input = chosen_buttons[0].dataset.timechart; //inputボタンに信号を代入
-                //↓gate_parentのdatasetにinput1,input2として保持させる
-                if(chosen_buttons[1].dataset.button_type == "input1"){ //input1からgate_parentのdataset.input1に代入
+                //---------------↓gate_parentのdatasetにinput1,input2として保持させる-------------
+                if(chosen_buttons[1].dataset.button_type == "input1"){ //input1ボタンからgate_parentのdataset.input1に代入
                     console.log("hiiiii");
                     chosen_buttons[1].parentNode.dataset.input1 = chosen_buttons[1].dataset.input;
-                }else if(chosen_buttons[1].dataset.button_type == "input2"){ //input2からgate_parentのdataset.input1に代入
+                }else if(chosen_buttons[1].dataset.button_type == "input2"){ //input2ボタンからgate_parentのdataset.input2に代入
                     console.log("uiiiii");
                     chosen_buttons[1].parentNode.dataset.input2 = chosen_buttons[1].dataset.input;
+                }else if(chosen_buttons[1].parentNode.id == "output"){
+                    chosen_buttons[1].parentNode.dataset.input = chosen_buttons[1].dataset.input;
                 }
-
+                //------------------------------------------------------------------------------
                 for(let chosen_button of chosen_buttons){
                     chosen_button.style.backgroundColor = "";
                 }
@@ -68,6 +90,18 @@ var mo = new MutationObserver(function(record, observer) { //変化した際の�
         })
     }
 });
+
+//出力ボタンにイベントを設定
+let do_output_button = document.getElementById("do_output");
+do_output_button.addEventListener("click", (event) => {
+    if(event.target.parentNode.dataset.input == event.target.parentNode.dataset.input){
+        window.alert("今日はここまで");
+    }else{
+        window.alert("うわああああああああばぐあああああああああああ");
+    }
+})
+
+
 
 function setLines(startElement, endElement){ //
     console.log("関数を実行しますの\n");
