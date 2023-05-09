@@ -51,6 +51,10 @@ var mo = new MutationObserver(function(record, observer) { //変化した際の�
             if(event.target.style.backgroundColor != "pink"){ //クリックされたボタンがピンク色じゃない場合ピンクにする
                 event.target.style.backgroundColor = "pink";
                 chosen_buttons.push(event.target);
+            }else{
+                console.log("hello");
+                event.target.style.backgroundColor = "";
+                chosen_buttons.pop();
             }
 
             if(event.target.dataset.button_type == "output"){ //outputボタンが選択されたときに実行。入力されている信号から出力用の信号を計算する。
@@ -218,6 +222,10 @@ function firstSetting(){
             if(event.target.style.backgroundColor != "pink"){ //クリックされたボタンがピンク色じゃない場合ピンクにする
                 event.target.style.backgroundColor = "pink";
                 chosen_buttons.push(event.target);
+            }else{
+                console.log("hello");
+                event.target.style.backgroundColor = "";
+                chosen_buttons.pop();
             }
 
             if(event.target.dataset.button_type == "output"){ //outputボタンが選択されたときに実行。入力されている信号から出力用の信号を計算する。
