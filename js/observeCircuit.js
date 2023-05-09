@@ -171,19 +171,16 @@ function setting(){
                     switch(chosen_buttons[0].parentNode.dataset.type){
                         case "AND":
                         case "OR":
-                            if(chosen_buttons[0].parentNode.dataset.connecting1 == undefined || chosen_buttons[0].parentNode.dataset.connecting1 == "undefined" ||
-                            chosen_buttons[0].parentNode.dataset.connecting1 == null){ //parentNode.dataset.connecting1が定義されいないときに実行
+                            if(chosen_buttons[0].dataset.button_type == "input1"){ //input1に入る線のidはconnecting1へ 2は2へ
                                 chosen_buttons[0].parentNode.dataset.connecting1 = chosen_buttons[0].dataset.line_start
-                            }else if(chosen_buttons[0].parentNode.dataset.connecting2 == undefined || chosen_buttons[0].parentNode.dataset.connecting2 == "undefined" ||
-                            chosen_buttons[0].parentNode.dataset.connecting2 == null){ //parentNode.dataset.connecting2が定義されいないときに実行
+                            }else if(chosen_buttons[0].dataset.button_type == "input2"){ //parentNode.dataset.connecting2が定義されいないときに実行
                                 chosen_buttons[0].parentNode.dataset.connecting2 = chosen_buttons[0].dataset.line_start
                             }else{
                                 chosen_buttons[0].parentNode.dataset.connecting3 = chosen_buttons[0].dataset.line_start
                             }
                             break;
                         case "NOT":
-                            if(chosen_buttons[0].parentNode.dataset.connecting1 == undefined || chosen_buttons[0].parentNode.dataset.connecting1 == "undefined" ||
-                            chosen_buttons[0].parentNode.dataset.connecting1 == null){ //parentNode.dataset.connecting1が定義されいないときに実行
+                            if(chosen_buttons[0].dataset.button_type == "input1"){ //input1に入る線のidはconnecting1へ 2は2へ
                                 chosen_buttons[0].parentNode.dataset.connecting1 = chosen_buttons[0].dataset.line_start
                             }else{
                                 chosen_buttons[0].parentNode.dataset.connecting2 = chosen_buttons[0].dataset.line_start
@@ -195,19 +192,16 @@ function setting(){
                     switch(chosen_buttons[1].parentNode.dataset.type){
                         case "AND":
                         case "OR":
-                            if(chosen_buttons[1].parentNode.dataset.connecting1 == undefined || chosen_buttons[1].parentNode.dataset.connecting1 == "undefined" ||
-                            chosen_buttons[1].parentNode.dataset.connecting1 == null){ //parentNode.dataset.connecting1が定義されいないときに実行
+                            if(chosen_buttons[1].dataset.button_type == "input1"){ //input1に入る線のidはconnecting1へ 2は2へ
                                 chosen_buttons[1].parentNode.dataset.connecting1 = chosen_buttons[1].dataset.line_end;
-                            }else if(chosen_buttons[1].parentNode.dataset.connecting2 == undefined || chosen_buttons[1].parentNode.dataset.connecting2 == "undefined" ||
-                            chosen_buttons[1].parentNode.dataset.connecting2 == null){ //parentNode.dataset.connecting2が定義されいないときに実行
+                            }else if(chosen_buttons[1].dataset.button_type == "input2"){ //parentNode.dataset.connecting2が定義されいないときに実行
                                 chosen_buttons[1].parentNode.dataset.connecting2 = chosen_buttons[1].dataset.line_end;
                             }else{
                                 chosen_buttons[1].parentNode.dataset.connecting3 = chosen_buttons[1].dataset.line_end;
                             }
                             break;
                         case "NOT":
-                            if(chosen_buttons[1].parentNode.dataset.connecting1 == undefined || chosen_buttons[1].parentNode.dataset.connecting1 == "undefined" ||
-                            chosen_buttons[1].parentNode.dataset.connecting1 == null){ //parentNode.dataset.connecting1が定義されいないときに実行
+                            if(chosen_buttons[1].dataset.button_type == "input1"){ //input1に入る線のidはconnecting1へ 2は2へ
                                 chosen_buttons[1].parentNode.dataset.connecting1 = chosen_buttons[1].dataset.line_end;
                             }else{
                                 chosen_buttons[1].parentNode.dataset.connecting2 = chosen_buttons[1].dataset.line_end;
