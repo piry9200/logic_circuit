@@ -206,7 +206,7 @@ function setLines(startElement, endElement){ //
 
 function firstSetting(){
 
-let buttons = document.getElementsByClassName("ioButton");
+    let buttons = document.getElementsByClassName("ioButton");
     
     for(let button of buttons){ //クリックで背景色をピンクにするイベントを設置
         if (button.dataset.event) { //addEventListnerの重複を回避
@@ -349,8 +349,6 @@ let buttons = document.getElementsByClassName("ioButton");
 
     }
 
-
-
 }
 
 /*
@@ -373,5 +371,6 @@ var config = {
     characterData: true,//「テキストノード」の変化
 };
 
+firstSetting(); //初期設定
 //監視の開始
 mo.observe(element, config);
