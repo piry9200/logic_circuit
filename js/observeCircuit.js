@@ -43,17 +43,18 @@ var mo = new MutationObserver(function(record, observer) { //変化した際の�
 //出力ボタンにイベントを設定
 let do_output_button = document.getElementById("do_output");
 do_output_button.addEventListener("click", (event) => {
+    let time = document.getElementById("time");
+    let clear_time = time.textContent;
     if(event.target.parentNode.dataset.input == event.target.parentNode.dataset.output){
-        window.alert("今日はここまで");
+        window.alert("正解\nクリアタイムは" + clear_time + "です");
     }else{
-        window.alert("うわああああああああばぐあああああああああああ");
+        window.alert("死");
     }
 })
 
 
 
 function setLines(startElement, endElement){ //
-    console.log("関数を実行しますの\n");
     let line_object = new LeaderLine(startElement,
         LeaderLine.pointAnchor(endElement, {x:"8px", y:"8px"})
     );

@@ -1,8 +1,22 @@
-//入力と出力の設定をするための初期設定を実行する
+//入力と出力の設定をするための初期設定,タイマーの設定を実行する
 
 let inputs = [[0,0,0,0,1,1,1,1],[0,0,1,1,0,0,1,1],[0,1,0,1,0,1,0,1]]; //ここの値によって、inputの真理値表の値を決める [[A],[B],[C]]
 let outputs = [[0,0,0,1,0,1,1,1], [1,0,1,0,1,0,1,1], [1,0,0,1,0,1,1,0], [0,1,1,0,1,0,0,1], [0,0,0,1,0,1,1,0], [0,0,1,1,1,1,1,1]];
 let num_outputs = outputs.length;
+let startTime = Date.now();
+
+let time = document.getElementById("time");
+time.innerText = "00:00";
+
+function timer() {
+    const d = new Date(Date.now() - startTime);
+    const s = String(d.getSeconds()).padStart(2, "0");
+    const m = String(d.getMinutes()).padStart(2, "0");
+    time.textContent = `${m}:${s}`;
+    timeoutId = setTimeout(() => { 
+    timer();
+    }, 1000);
+}
 
 function setInputs(){ //真理値表の作成と各インプットオブジェクト（A,B,C)に値をセットする
     const inputs_table = document.getElementsByClassName("inputs");
@@ -44,3 +58,4 @@ button.addEventListener("click", setOutputs);
 
 setInputs();
 setOutputs();
+timer();
