@@ -89,6 +89,52 @@ Circuit.addEventListener('drop', (event) => {
 
             }
             //================================================================
+            //↓配置する論理回路がダブルクリックされたとき、回路ないから削除する機能を設定する
+            gate_parent.addEventListener("dblclick", (event) => {
+                for(let chosen_button in chosen_buttons){ //選択されているボタンの色を元に戻す
+                    chosen_button.style.backgroundColor = "";
+                }
+                chosen_buttons = []; //バグ回避のため、選択されているボタンを強制的に解除する。
+                let ioButtons = document.getElementsByClassName("ioButton"); //つながってる線の共有先の線についてのプロパティも削除する必要あり
+                if(event.currentTarget.dataset.connecting1 != undefined){ //
+                    console.log(ioButtons.length);
+                    for(let i = 0 ; i < ioButtons.length; i++){
+                        console.log(ioButtons[i].dataset.line_start)
+                        if(ioButtons[i].dataset.line_start != undefined){
+                            delete ioButtons[i].dataset.line_start;
+                        }
+                        if(ioButtons[i].dataset.line_end != undefined){
+                            delete ioButtons[i].dataset.line_end;
+                        }
+                    }
+                    lines[event.currentTarget.dataset.connecting1].remove();
+                }
+                if(event.currentTarget.dataset.connecting2 != undefined){
+                    for(let i = 0 ; i < ioButtons.length; i++){
+                        console.log(ioButtons[i].dataset.line_start)
+                        if(ioButtons[i].dataset.line_start != undefined){
+                            delete ioButtons[i].dataset.line_start;
+                        }
+                        if(ioButtons[i].dataset.line_end != undefined){
+                            delete ioButtons[i].dataset.line_end;
+                        }
+                    }
+                    lines[event.currentTarget.dataset.connecting2].remove();
+                }
+                if(event.currentTarget.dataset.connecting3 != undefined){
+                    for(let i = 0 ; i < ioButtons.length; i++){
+                        console.log(ioButtons[i].dataset.line_start)
+                        if(ioButtons[i].dataset.line_start != undefined){
+                            delete ioButtons[i].dataset.line_start;
+                        }
+                        if(ioButtons[i].dataset.line_end != undefined){
+                            delete ioButtons[i].dataset.line_end;
+                        }
+                    }
+                    lines[event.currentTarget.dataset.connecting3].remove();;
+                }
+                event.currentTarget.remove();
+            });
             gate_parent.appendChild(gate)
         //--------------------------------------------------------
         event.target.appendChild(gate_parent);

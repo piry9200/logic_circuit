@@ -125,29 +125,23 @@ function setting(){
             }
 
             if(chosen_buttons.length == 2){ //二つ選択されたときに実行。選択されている二つのゲートに対しての処理
-                if((chosen_buttons[0].dataset.line_start != undefined || chosen_buttons[1].dataset.line_start != undefined ) && //←線が定義されいること 
-                    ( chosen_buttons[0].dataset.line_start == chosen_buttons[1].line_end || //←同じ線であること
-                    chosen_buttons[1].dataset.line_start == chosen_buttons[0].line_end) ){ //選ばれた二つのボタンがすでに線で結ばれているとき
-                        if(chosen_buttons[0].dataset.line_start == undefined){//クリックする順番が前後しても大丈夫なように分岐する
-                            lines[chosen_buttons[0].dataset.line_end].remove();
-                            delete chosen_buttons[0].dataset.line_end; //プロパティを初期化
-                            delete chosen_buttons[1].dataset.line_start;
-                        }else{
-                            lines[chosen_buttons[1].dataset.line_end].remove();
-                            delete chosen_buttons[1].dataset.line_end; //プロパティを初期化
-                            delete chosen_buttons[0].dataset.line_start;
-                        }
+                let leftside_Xcoordinate = chosen_buttons[0].getBoundingClientRect().left;
+                if(leftside_Xcoordinate > chosen_buttons[1].getBoundingClientRect().left){ //chosen_buttonsの[0]の方が左側にあるようにする
+                    let temp = chosen_buttons[1];
+                    chosen_buttons[1] = chosen_buttons[0];
+                    chosen_buttons[0] = temp;
+                }
+                if( (chosen_buttons[0].dataset.line_start != undefined && chosen_buttons[1].dataset.line_end != undefined) &&
+                    (chosen_buttons[0].dataset.line_start == chosen_buttons[1].dataset.line_end)){ //選ばれた二つのボタンがすでに線で結ばれているとき
+                        console.log("削除");
+                        lines[chosen_buttons[1].dataset.line_end].remove();
+                        delete chosen_buttons[1].dataset.line_end; //プロパティを初期化
+                        delete chosen_buttons[0].dataset.line_start;
                         chosen_buttons[0].style.backgroundColor = "";//色を元に戻す
                         chosen_buttons[1].style.backgroundColor = "";
                         chosen_buttons.pop();//選択したボタンリストから削除する
                         chosen_buttons.pop();
                 }else{ //選ばれた二つのボタンがまだ結線されていない場合に実行
-                    let leftside_Xcoordinate = chosen_buttons[0].getBoundingClientRect().left;
-                    if(leftside_Xcoordinate > chosen_buttons[1].getBoundingClientRect().left){ //chosen_buttonsの[0]の方が左側にあるようにする
-                        let temp = chosen_buttons[1];
-                        chosen_buttons[1] = chosen_buttons[0];
-                        chosen_buttons[0] = temp;
-                    }
                     //左(timechart)から右( input(1 or 2) )に代入
                     chosen_buttons[1].dataset.input = chosen_buttons[0].dataset.timechart; //inputボタンに信号を代入
                     //---------------↓gate_parentのdatasetにinput1,input2として保持させる-------------
