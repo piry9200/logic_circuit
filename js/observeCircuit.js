@@ -21,12 +21,12 @@ var mo = new MutationObserver(function(record, observer) { //変化した際の�
             },
             onMove: function () {
                 if(gate.dataset.type == "AND" || gate.dataset.type == "OR"){//接続する線の数が違うから分けて処理する
-                    lines[gate.dataset.connecting1].position();
-                    lines[gate.dataset.connecting2].position();
-                    lines[gate.dataset.connecting3].position();
+                    if(gate.dataset.connecting1 != undefined) lines[gate.dataset.connecting1].position();
+                    if(gate.dataset.connecting2 != undefined) lines[gate.dataset.connecting2].position();
+                    if(gate.dataset.connecting3 != undefined) lines[gate.dataset.connecting3].position();
                 }else{
-                    lines[gate.dataset.connecting1].position();
-                    lines[gate.dataset.connecting2].position();
+                    if(gate.dataset.connecting1 != undefined) lines[gate.dataset.connecting1].position();
+                    if(gate.dataset.connecting2 != undefined)lines[gate.dataset.connecting2].position();
                 }
                 
                 console.log("mooooove");
