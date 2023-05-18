@@ -29,10 +29,9 @@ var mo = new MutationObserver(function(record, observer) { //変化した際の�
                     if(gate.dataset.connecting2 != undefined)lines[gate.dataset.connecting2].position();
                 }
                 
-                console.log("mooooove");
             },
             onDragEnd: function () {
-                console.log("end");
+
             }
         });
     }
@@ -90,7 +89,7 @@ function setting(){
                         event.target.parentNode.dataset.input2 != null)
                         {//input1 input2が定義されていない（undefined,null)ときは実行しない
                             console.log("calc!");
-                            for(let i=0; i<event.target.parentNode.dataset.input1.length; i=i+2){
+                            for(let i=0; i<event.target.parentNode.dataset.input1.length; i=i+2){ //datasetのデータには「,」もデータの一つとしてあるため、i+2とすることで回避
                                 answer1.push(event.target.parentNode.dataset.input1[i] * event.target.parentNode.dataset.input2[i]);
                             }
                             event.target.dataset.timechart = answer1; //outputボタンに計算結果(timechart)を設定
@@ -131,6 +130,7 @@ function setting(){
                     chosen_buttons[1] = chosen_buttons[0];
                     chosen_buttons[0] = temp;
                 }
+                //以下、削除機能
                 if( (chosen_buttons[0].dataset.line_start != undefined && chosen_buttons[1].dataset.line_end != undefined) &&
                     (chosen_buttons[0].dataset.line_start == chosen_buttons[1].dataset.line_end)){ //選ばれた二つのボタンがすでに線で結ばれているとき
                         console.log("削除");
@@ -141,72 +141,82 @@ function setting(){
                         chosen_buttons[1].style.backgroundColor = "";
                         chosen_buttons.pop();//選択したボタンリストから削除する
                         chosen_buttons.pop();
+                //以下、接続機能
                 }else{ //選ばれた二つのボタンがまだ結線されていない場合に実行
-                    //左(timechart)から右( input(1 or 2) )に代入
-                    chosen_buttons[1].dataset.input = chosen_buttons[0].dataset.timechart; //inputボタンに信号を代入
-                    //---------------↓gate_parentのdatasetにinput1,input2として保持させる-------------
-                    if(chosen_buttons[1].dataset.button_type == "input1"){ //input1ボタンからgate_parentのdataset.input1に代入
-                        chosen_buttons[1].parentNode.dataset.input1 = chosen_buttons[1].dataset.input;
-                    }else if(chosen_buttons[1].dataset.button_type == "input2"){ //input2ボタンからgate_parentのdataset.input2に代入
-                        chosen_buttons[1].parentNode.dataset.input2 = chosen_buttons[1].dataset.input;
-                    }else if(chosen_buttons[1].parentNode.id == "output"){
-                        chosen_buttons[1].parentNode.dataset.input = chosen_buttons[1].dataset.input;
+                    //右側のボタンがinputで、すでに他のボタンと接続されている場合
+                    if((chosen_buttons[1].dataset.button_type == "input1" || chosen_buttons[1].dataset.button_type == "input2") &&
+                    chosen_buttons[1].dataset.line_end != undefined    ){
+                            for(let chosen_button of chosen_buttons){ //色を透明に戻す
+                                chosen_button.style.backgroundColor = "";
+                            }
+                            chosen_buttons.splice(0) //すべての要素を削除
                     }
-                    //------------------------------------------------------------------------------
-                    for(let chosen_button of chosen_buttons){ //色を透明に戻す
-                        chosen_button.style.backgroundColor = "";
-                    }
-                    //線を引いて、引いた線に関わるオブジェクトたちに線の情報をセット
-                    let line = setLines(chosen_buttons[0], chosen_buttons[1]);
-                    let line_id = line._id;
-                    lines[line_id] = line;
-                    chosen_buttons[0].dataset.line_start = line_id;
-                    chosen_buttons[1].dataset.line_end = line_id;
-                    //-----------------gate_parentに接続中の線の情報を送る-----------------------
-                    switch(chosen_buttons[0].parentNode.dataset.type){
-                        case "AND":
-                        case "OR":
-                            if(chosen_buttons[0].dataset.button_type == "input1"){ //input1に入る線のidはconnecting1へ 2は2へ
-                                chosen_buttons[0].parentNode.dataset.connecting1 = chosen_buttons[0].dataset.line_start
-                            }else if(chosen_buttons[0].dataset.button_type == "input2"){ //parentNode.dataset.connecting2が定義されいないときに実行
-                                chosen_buttons[0].parentNode.dataset.connecting2 = chosen_buttons[0].dataset.line_start
-                            }else{
-                                chosen_buttons[0].parentNode.dataset.connecting3 = chosen_buttons[0].dataset.line_start
-                            }
-                            break;
-                        case "NOT":
-                            if(chosen_buttons[0].dataset.button_type == "input1"){ //input1に入る線のidはconnecting1へ 2は2へ
-                                chosen_buttons[0].parentNode.dataset.connecting1 = chosen_buttons[0].dataset.line_start
-                            }else{
-                                chosen_buttons[0].parentNode.dataset.connecting2 = chosen_buttons[0].dataset.line_start
-                            }
-                            break;
-                        default: break;
-                    }
-                    // ↑↑↑↑↑結線の左側に対して処理　        結線の右側に対して処理↓↓↓↓↓↓↓↓
-                    switch(chosen_buttons[1].parentNode.dataset.type){
-                        case "AND":
-                        case "OR":
-                            if(chosen_buttons[1].dataset.button_type == "input1"){ //input1に入る線のidはconnecting1へ 2は2へ
-                                chosen_buttons[1].parentNode.dataset.connecting1 = chosen_buttons[1].dataset.line_end;
-                            }else if(chosen_buttons[1].dataset.button_type == "input2"){ //parentNode.dataset.connecting2が定義されいないときに実行
-                                chosen_buttons[1].parentNode.dataset.connecting2 = chosen_buttons[1].dataset.line_end;
-                            }else{
-                                chosen_buttons[1].parentNode.dataset.connecting3 = chosen_buttons[1].dataset.line_end;
-                            }
-                            break;
-                        case "NOT":
-                            if(chosen_buttons[1].dataset.button_type == "input1"){ //input1に入る線のidはconnecting1へ 2は2へ
-                                chosen_buttons[1].parentNode.dataset.connecting1 = chosen_buttons[1].dataset.line_end;
-                            }else{
-                                chosen_buttons[1].parentNode.dataset.connecting2 = chosen_buttons[1].dataset.line_end;
-                            }
-                        default: break;
-                    //------------↑↑↑↑↑↑gate_parentに接続中の線の情報を送る↑↑↑↑↑↑----------------------------------------
+                    else{
+                        //左(timechart)から右( input(1 or 2) )に代入
+                        chosen_buttons[1].dataset.input = chosen_buttons[0].dataset.timechart; //inputボタンに信号を代入
+                        //---------------↓gate_parentのdatasetにinput1,input2として保持させる-------------
+                        if(chosen_buttons[1].dataset.button_type == "input1"){ //input1ボタンからgate_parentのdataset.input1に代入
+                            chosen_buttons[1].parentNode.dataset.input1 = chosen_buttons[1].dataset.input;
+                        }else if(chosen_buttons[1].dataset.button_type == "input2"){ //input2ボタンからgate_parentのdataset.input2に代入
+                            chosen_buttons[1].parentNode.dataset.input2 = chosen_buttons[1].dataset.input;
+                        }else if(chosen_buttons[1].parentNode.id == "output"){
+                            chosen_buttons[1].parentNode.dataset.input = chosen_buttons[1].dataset.input;
+                        }
+                        //------------------------------------------------------------------------------
+                        for(let chosen_button of chosen_buttons){ //色を透明に戻す
+                            chosen_button.style.backgroundColor = "";
+                        }
+                        //線を引いて、引いた線に関わるオブジェクトたちに線の情報をセット
+                        let line = setLines(chosen_buttons[0], chosen_buttons[1]);
+                        let line_id = line._id;
+                        lines[line_id] = line;
+                        chosen_buttons[0].dataset.line_start = line_id;
+                        chosen_buttons[1].dataset.line_end = line_id;
+                        //-----------------gate_parentに接続中の線の情報を送る-----------------------
+                        switch(chosen_buttons[0].parentNode.dataset.type){
+                            case "AND":
+                            case "OR":
+                                if(chosen_buttons[0].dataset.button_type == "input1"){ //input1に入る線のidはconnecting1へ 2は2へ
+                                    chosen_buttons[0].parentNode.dataset.connecting1 = chosen_buttons[0].dataset.line_start
+                                }else if(chosen_buttons[0].dataset.button_type == "input2"){ //parentNode.dataset.connecting2が定義されいないときに実行
+                                    chosen_buttons[0].parentNode.dataset.connecting2 = chosen_buttons[0].dataset.line_start
+                                }else{
+                                    chosen_buttons[0].parentNode.dataset.connecting3 = chosen_buttons[0].dataset.line_start
+                                }
+                                break;
+                            case "NOT":
+                                if(chosen_buttons[0].dataset.button_type == "input1"){ //input1に入る線のidはconnecting1へ 2は2へ
+                                    chosen_buttons[0].parentNode.dataset.connecting1 = chosen_buttons[0].dataset.line_start
+                                }else{
+                                    chosen_buttons[0].parentNode.dataset.connecting2 = chosen_buttons[0].dataset.line_start
+                                }
+                                break;
+                            default: break;
+                        }
+                        // ↑↑↑↑↑結線の左側に対して処理　        結線の右側に対して処理↓↓↓↓↓↓↓↓
+                        switch(chosen_buttons[1].parentNode.dataset.type){
+                            case "AND":
+                            case "OR":
+                                if(chosen_buttons[1].dataset.button_type == "input1"){ //input1に入る線のidはconnecting1へ 2は2へ
+                                    chosen_buttons[1].parentNode.dataset.connecting1 = chosen_buttons[1].dataset.line_end;
+                                }else if(chosen_buttons[1].dataset.button_type == "input2"){ //parentNode.dataset.connecting2が定義されいないときに実行
+                                    chosen_buttons[1].parentNode.dataset.connecting2 = chosen_buttons[1].dataset.line_end;
+                                }else{
+                                    chosen_buttons[1].parentNode.dataset.connecting3 = chosen_buttons[1].dataset.line_end;
+                                }
+                                break;
+                            case "NOT":
+                                if(chosen_buttons[1].dataset.button_type == "input1"){ //input1に入る線のidはconnecting1へ 2は2へ
+                                    chosen_buttons[1].parentNode.dataset.connecting1 = chosen_buttons[1].dataset.line_end;
+                                }else{
+                                    chosen_buttons[1].parentNode.dataset.connecting2 = chosen_buttons[1].dataset.line_end;
+                                }
+                            default: break;
+                        //------------↑↑↑↑↑↑gate_parentに接続中の線の情報を送る↑↑↑↑↑↑----------------------------------------
 
+                        }
+                        chosen_buttons.splice(0) //すべての要素を削除
                     }
-                    chosen_buttons.splice(0) //すべての要素を削除
-
                 }
                 
             }
