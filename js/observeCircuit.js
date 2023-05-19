@@ -130,6 +130,11 @@ function setting(){
                     chosen_buttons[1] = chosen_buttons[0];
                     chosen_buttons[0] = temp;
                 }
+                if(chosen_buttons[0].dataset.button_type == "input1" || chosen_buttons[0].dataset.button_type == "input2"){ //左側に論理ゲートのinputボタンがあるときは、[0],[1]を入れ替える
+                    let temp = chosen_buttons[1];
+                    chosen_buttons[1] = chosen_buttons[0];
+                    chosen_buttons[0] = temp;
+                }
                 //以下、削除機能
                 if( (chosen_buttons[0].dataset.line_start != undefined && chosen_buttons[1].dataset.line_end != undefined) &&
                     (chosen_buttons[0].dataset.line_start == chosen_buttons[1].dataset.line_end)){ //選ばれた二つのボタンがすでに線で結ばれているとき
@@ -139,6 +144,24 @@ function setting(){
                         delete chosen_buttons[0].dataset.line_start;
                         chosen_buttons[0].style.backgroundColor = "";//色を元に戻す
                         chosen_buttons[1].style.backgroundColor = "";
+                        if(chosen_buttons[0].dataset.button_type == "input1"){
+                            delete chosen_buttons[0].parentNode.dataset.connecting1;
+                        }else if(chosen_buttons[0].dataset.button_type == "input2"){
+                            delete chosen_buttons[0].parentNode.dataset.connecting2;
+                        }else{
+                            if(chosen_buttons[0].parentNode.dataset.connecting3 != undefined){
+                                delete chosen_buttons[0].parentNode.dataset.connecting3;
+                            }
+                        }
+                        if(chosen_buttons[1].dataset.button_type == "input1"){
+                            delete chosen_buttons[1].parentNode.dataset.connecting1;
+                        }else if(chosen_buttons[1].dataset.button_type == "input2"){
+                            delete chosen_buttons[1].parentNode.dataset.connecting2;
+                        }else{
+                            if(chosen_buttons[1].parentNode.dataset.connecting3 != undefined){
+                                delete chosen_buttons[1].parentNode.dataset.connecting3;
+                            }
+                        }
                         chosen_buttons.pop();//選択したボタンリストから削除する
                         chosen_buttons.pop();
                 //以下、接続機能
