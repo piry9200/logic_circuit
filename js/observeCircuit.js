@@ -130,43 +130,103 @@ function setting(){
                     chosen_buttons[1] = chosen_buttons[0];
                     chosen_buttons[0] = temp;
                 }
-                if(chosen_buttons[0].dataset.button_type == "input1" || chosen_buttons[0].dataset.button_type == "input2"){ //左側に論理ゲートのinputボタンがあるときは、[0],[1]を入れ替える
+                if(chosen_buttons[0].dataset.button_type == "input1" || chosen_buttons[0].dataset.button_type == "input2"){ //左側に論理ゲートのinputボタンがあるときは、[0],[1]を入れ替えて,[0][1]の順番を正しくする
                     let temp = chosen_buttons[1];
                     chosen_buttons[1] = chosen_buttons[0];
                     chosen_buttons[0] = temp;
                 }
                 //以下、削除機能
-                if( (chosen_buttons[0].dataset.line_start != undefined && chosen_buttons[1].dataset.line_end != undefined) &&
-                    (chosen_buttons[0].dataset.line_start == chosen_buttons[1].dataset.line_end)){ //選ばれた二つのボタンがすでに線で結ばれているとき
-                        console.log("削除");
-                        lines[chosen_buttons[1].dataset.line_end].remove();
-                        delete chosen_buttons[1].dataset.line_end; //プロパティを初期化
-                        delete chosen_buttons[0].dataset.line_start;
-                        chosen_buttons[0].style.backgroundColor = "";//色を元に戻す
-                        chosen_buttons[1].style.backgroundColor = "";
-                        if(chosen_buttons[0].dataset.button_type == "input1"){
-                            delete chosen_buttons[0].parentNode.dataset.connecting1;
-                        }else if(chosen_buttons[0].dataset.button_type == "input2"){
-                            delete chosen_buttons[0].parentNode.dataset.connecting2;
-                        }else{
-                            if(chosen_buttons[0].parentNode.dataset.connecting3 != undefined){
-                                delete chosen_buttons[0].parentNode.dataset.connecting3;
+                if( chosen_buttons[0].dataset.line_start != undefined && chosen_buttons[1].dataset.line_end != undefined ){ //選ばれた二つのボタンにline_start line_endが定義されているかどうか
+                    let temp_start_lines_id = chosen_buttons[0].dataset.line_start //現在のdatasetのlineidたちを取得。使用上配列に「'」が含まれている
+                    let temp_end_lines_id = chosen_buttons[1].dataset.line_end //現在のdatasetのlineidたちを取得。使用上配列に「'」が含まれている
+
+                    let start_lines_id = [];
+                    let end_lines_id = [];
+                    if(temp_start_lines_id == undefined && temp_end_lines_id != undefined){ //end側に線がつながっていないとき、まだ取得できる配列がないので新たに作成する
+                        end_lines_id = get_lineIds(temp_end_lines_id);
+                    }else if(temp_start_lines_id != undefined && temp_end_lines_id == undefined){ //end側に線がつながっていないとき、まだ取得できる配列がないので新たに作成する
+                        start_lines_id = get_lineIds(temp_start_lines_id); //選択されたボタンの始点側に接続されているボタンのリスト
+                    }else if(temp_start_lines_id != undefined && temp_end_lines_id != undefined){
+                        start_lines_id = get_lineIds(temp_start_lines_id); //選択されたボタンの始点側に接続されているボタンのリスト
+                        end_lines_id = get_lineIds(temp_end_lines_id); //選択されたボタンの始点側に接続されているボタンのリスト
+                    }
+                    console.log("wei")
+                    let flag = 0;
+                    for(let i = 0; i < start_lines_id.length; i++){ //選択されたボタンに接続されている線idを走査して、一致するものがあったら記憶する
+                        for(let j = 0; j < end_lines_id.length; j++){
+                            if(start_lines_id[i] == end_lines_id[j]){ //一致するものがあったとき iとjが一致するlineidが入っているインデックスを表す
+                                console.log(start_lines_id[i]);
+                                console.log(end_lines_id[j]);
+                                console.log("削除");
+                                lines[start_lines_id[i]].remove();
+                             //線を消すとき、一本しかないなら、datasetごと削除する   
+                                if(start_lines_id.length == 1 && end_lines_id.length == 1){
+                                    start_lines_id.splice(i, 1); //削除した線のidを配列からも削除する
+                                    delete chosen_buttons[0].dataset.line_start;
+                                    end_lines_id.splice(j, 1); //削除した線のidを配列からも削除する
+                                    delete chosen_buttons[1].dataset.line_end;
+
+                                }else if(start_lines_id.length != 1 && end_lines_id.length == 1){
+
+                                    start_lines_id.splice(i, 1); //削除した線のidを配列からも削除する
+                                    chosen_buttons[0].dataset.line_start = start_lines_id;
+                                    end_lines_id.splice(j, 1); //削除した線のidを配列からも削除する
+                                    delete chosen_buttons[1].dataset.line_end;
+
+                                }else if(start_lines_id.length == 1 && end_lines_id.length != 1){
+
+                                    start_lines_id.splice(i, 1); //削除した線のidを配列からも削除する
+                                    delete chosen_buttons[0].dataset.line_start;
+                                    end_lines_id.splice(j, 1); //削除した線のidを配列からも削除する
+                                    chosen_buttons[1].dataset.line_end = end_lines_id;
+
+                                }else{
+
+                                    start_lines_id.splice(i, 1); //削除した線のidを配列からも削除する
+                                    end_lines_id.splice(j, 1); //削除した線のidを配列からも削除する
+                                    chosen_buttons[0].dataset.line_start = start_lines_id;
+                                    chosen_buttons[1].dataset.line_end = end_lines_id;
+
+                                }
+                                
+
+                                chosen_buttons[0].style.backgroundColor = "";//色を元に戻す
+                                chosen_buttons[1].style.backgroundColor = "";
+
+                                if(chosen_buttons[0].dataset.button_type == "input1"){
+                                    delete chosen_buttons[0].parentNode.dataset.connecting1;
+                                }else if(chosen_buttons[0].dataset.button_type == "input2"){
+                                    delete chosen_buttons[0].parentNode.dataset.connecting2;
+                                }else{
+                                    if(chosen_buttons[0].parentNode.dataset.connecting3 != undefined){
+                                        delete chosen_buttons[0].parentNode.dataset.connecting3;
+                                    }
+                                }
+                                if(chosen_buttons[1].dataset.button_type == "input1"){
+                                    delete chosen_buttons[1].parentNode.dataset.connecting1;
+                                }else if(chosen_buttons[1].dataset.button_type == "input2"){
+                                    delete chosen_buttons[1].parentNode.dataset.connecting2;
+                                }else{
+                                    if(chosen_buttons[1].parentNode.dataset.connecting3 != undefined){
+                                        delete chosen_buttons[1].parentNode.dataset.connecting3;
+                                    }
+                                }
+
+                                flag = 1;//見つかったらfor脱出
+                                break;
                             }
                         }
-                        if(chosen_buttons[1].dataset.button_type == "input1"){
-                            delete chosen_buttons[1].parentNode.dataset.connecting1;
-                        }else if(chosen_buttons[1].dataset.button_type == "input2"){
-                            delete chosen_buttons[1].parentNode.dataset.connecting2;
-                        }else{
-                            if(chosen_buttons[1].parentNode.dataset.connecting3 != undefined){
-                                delete chosen_buttons[1].parentNode.dataset.connecting3;
-                            }
+                        if(flag == 1){
+                            break; //見つかったらfor脱出
                         }
+                    }
+
+                        
                         chosen_buttons.pop();//選択したボタンリストから削除する
                         chosen_buttons.pop();
                 //以下、接続機能
                 }else{ //選ばれた二つのボタンがまだ結線されていない場合に実行
-                    //右側のボタンがinputで、すでに他のボタンと接続されている場合
+                    //右側のボタンがinputで、すでに他のボタンと接続されている場合,接続しない
                     if((chosen_buttons[1].dataset.button_type == "input1" || chosen_buttons[1].dataset.button_type == "input2") &&
                     chosen_buttons[1].dataset.line_end != undefined    ){
                             for(let chosen_button of chosen_buttons){ //色を透明に戻す
@@ -175,6 +235,21 @@ function setting(){
                             chosen_buttons.splice(0) //すべての要素を削除
                     }
                     else{
+                        let temp_start_lines_id = chosen_buttons[0].dataset.line_start //現在のdatasetのlineidたちを取得。使用上配列に「'」が含まれている
+                        let temp_end_lines_id = chosen_buttons[1].dataset.line_end //現在のdatasetのlineidたちを取得。使用上配列に「'」が含まれている
+                        
+                        let start_lines_id = [];
+                        let end_lines_id = [];
+                        if(temp_start_lines_id == undefined && temp_end_lines_id != undefined){ //end側に線がつながっていないとき、まだ取得できる配列がないので新たに作成する
+                            end_lines_id = get_lineIds(temp_end_lines_id);
+                        }else if(temp_start_lines_id != undefined && temp_end_lines_id == undefined){ //end側に線がつながっていないとき、まだ取得できる配列がないので新たに作成する
+                            start_lines_id = get_lineIds(temp_start_lines_id); //選択されたボタンの始点側に接続されているボタンのリスト
+                        }else if(temp_start_lines_id != undefined && temp_end_lines_id != undefined){
+                            start_lines_id = get_lineIds(temp_start_lines_id); //選択されたボタンの始点側に接続されているボタンのリスト
+                            end_lines_id = get_lineIds(temp_end_lines_id); //選択されたボタンの始点側に接続されているボタンのリスト
+                        }
+                        
+                        
                         //左(timechart)から右( input(1 or 2) )に代入
                         chosen_buttons[1].dataset.input = chosen_buttons[0].dataset.timechart; //inputボタンに信号を代入
                         //---------------↓gate_parentのdatasetにinput1,input2として保持させる-------------
@@ -191,10 +266,13 @@ function setting(){
                         }
                         //線を引いて、引いた線に関わるオブジェクトたちに線の情報をセット
                         let line = setLines(chosen_buttons[0], chosen_buttons[1]);
-                        let line_id = line._id;
-                        lines[line_id] = line;
-                        chosen_buttons[0].dataset.line_start = line_id;
-                        chosen_buttons[1].dataset.line_end = line_id;
+                        start_lines_id.push(line._id);
+                        end_lines_id.push(line._id);
+                        console.log(typeof(end_lines_id));
+                        console.log("test2");
+                        lines[start_lines_id[ start_lines_id.length - 1]] = line; //現在回路上にある線をインデックスを線のidと一致させて管理
+                        chosen_buttons[0].dataset.line_start = start_lines_id;
+                        chosen_buttons[1].dataset.line_end = end_lines_id;
                         //-----------------gate_parentに接続中の線の情報を送る-----------------------
                         switch(chosen_buttons[0].parentNode.dataset.type){
                             case "AND":
@@ -247,6 +325,16 @@ function setting(){
 
     }
 
+}
+
+function get_lineIds(temp_lines_id){ //「'」入りの配列を「'」無し配列に変更
+    let lines_id = [];//選択されたボタンの始点側に接続されているボタンのリスト
+    console.log()
+    for(let i = 0; i < temp_lines_id.length; i = i + 2){
+        lines_id[i/2] = temp_lines_id[i];
+    }
+
+    return lines_id;
 }
 
 /*
