@@ -21,12 +21,57 @@ var mo = new MutationObserver(function(record, observer) { //変化した際の�
             },
             onMove: function () {
                 if(gate.dataset.type == "AND" || gate.dataset.type == "OR"){//接続する線の数が違うから分けて処理する
-                    if(gate.dataset.connecting1 != undefined) lines[gate.dataset.connecting1].position();
-                    if(gate.dataset.connecting2 != undefined) lines[gate.dataset.connecting2].position();
-                    if(gate.dataset.connecting3 != undefined) lines[gate.dataset.connecting3].position();
+                    if(gate.dataset.connecting1 != undefined){
+                        if(gate.dataset.connecting1.length > 1){ //複数本つながってる時とそうでないときに分けて処理
+                            for(let i = 0; i < gate.dataset.connecting1.length; i = i + 2){
+                                console.log(gate.dataset.connecting1[i])
+                                lines[gate.dataset.connecting1[i]].position();
+                            }
+                        }else{
+                            lines[gate.dataset.connecting1].position();
+                        }
+                    }
+                    if(gate.dataset.connecting2 != undefined){
+                        if(gate.dataset.connecting2.length > 1){ //複数本つながってる時とそうでないときに分けて処理
+                            for(let i = 0; i < gate.dataset.connecting2.length; i = i + 2){
+                                console.log(gate.dataset.connecting2[i])
+                                lines[gate.dataset.connecting2[i]].position();
+                            }
+                        }else{
+                            lines[gate.dataset.connecting2].position();
+                        }
+                    }
+                    if(gate.dataset.connecting3 != undefined){
+                        if(gate.dataset.connecting3.length > 1){ //複数本つながってる時とそうでないときに分けて処理
+                            for(let i = 0; i < gate.dataset.connecting3.length; i = i + 2){
+                                console.log(gate.dataset.connecting3[i])
+                                lines[gate.dataset.connecting3[i]].position();
+                            }
+                        }else{
+                            lines[gate.dataset.connecting3].position();
+                        }
+                    } 
                 }else{
-                    if(gate.dataset.connecting1 != undefined) lines[gate.dataset.connecting1].position();
-                    if(gate.dataset.connecting2 != undefined)lines[gate.dataset.connecting2].position();
+                    if(gate.dataset.connecting1 != undefined){
+                        if(gate.dataset.connecting1.length > 1){ //複数本つながってる時とそうでないときに分けて処理
+                            for(let i = 0; i < gate.dataset.connecting1.length; i = i + 2){
+                                console.log(gate.dataset.connecting1[i])
+                                lines[gate.dataset.connecting1[i]].position();
+                            }
+                        }else{
+                            lines[gate.dataset.connecting1].position();
+                        }
+                    }
+                    if(gate.dataset.connecting2 != undefined){
+                        if(gate.dataset.connecting2.length > 1){ //複数本つながってる時とそうでないときに分けて処理
+                            for(let i = 0; i < gate.dataset.connecting2.length; i = i + 2){
+                                console.log(gate.dataset.connecting2[i])
+                                lines[gate.dataset.connecting2[i]].position();
+                            }
+                        }else{
+                            lines[gate.dataset.connecting2].position();
+                        }
+                    }
                 }
                 
             },
@@ -386,43 +431,47 @@ function culc_outputs(line_end){
     switch(target_button.parentNode.dataset.type){
         case "output": 
             console.log("output");
-            return target_button.dataset.timechart; //入力される信号を返す
+            let answer_OP = []; //『","』を取りぞいた配列を作る
+            for (let i = 0; i < target_button.dataset.timechart.length; i = i + 2){
+                answer_OP.push(target_button.dataset.timechart[i]);
+            }
+            return answer_OP; //入力される信号を返す ","なし
         case "AND":
             console.log("AND");
             let input1_AND = culc_outputs(target_button.parentNode.dataset.connecting1); //再帰的に求める
             let input2_AND = culc_outputs(target_button.parentNode.dataset.connecting2); //再帰的に求める
             let answer_AND = [];
-            for(let i = 0; i < input1_AND.length; i = i + 2){ //datasetのデータには「,」もデータの一つとしてあるため、i+2とすることで回避
+            for(let i = 0; i < input1_AND.length; i++){ //datasetのデータには「,」もデータの一つとしてあるため、i+2とすることで回避
                 answer_AND.push(input1_AND[i] * input2_AND[i]);
             }
             console.log(answer_AND);
-            target_button.dataset.timechart = answer_AND;
-            return answer_AND;
+            target_button.parentNode.dataset.timechart = answer_AND;
+            return answer_AND; // ","なし
         case "OR": 
             console.log("OR");
             let input1_OR = culc_outputs(target_button.parentNode.dataset.connecting1); //再帰的に求める
             let input2_OR = culc_outputs(target_button.parentNode.dataset.connecting2); //再帰的に求める
             let answer_OR = [];
-            for(let i = 0; i < input1_OR.length; i = i + 2){ //datasetのデータには「,」もデータの一つとしてあるため、i+2とすることで回避
+            for(let i = 0; i < input1_OR.length; i++){ //datasetのデータには「,」もデータの一つとしてあるため、i+2とすることで回避
                 let num = input1_OR[i] + input2_OR[i];
                 answer_OR.push( num >= 1 ? 1 : 0); //二つのインプットの和が１以上だったら１をプッシュ
             }
             console.log(answer_OR);
-            target_button.dataset.timechart = answer_OR;
-            return answer_OR;
+            target_button.parentNode.dataset.timechart = answer_OR;
+            return answer_OR; // ","なし
         case "NOT":
             console.log("NOT");
             let input1_NOT = culc_outputs(target_button.parentNode.dataset.connecting1); //再帰的に求める
             let answer_NOT = [];
             console.log("input1_NOT: " + input1_NOT);
-            for(let i = 0; i < input1_NOT.length; i = i + 2){ //datasetのデータには「,」もデータの一つとしてあるため、i+2とすることで回避
+            for(let i = 0; i < input1_NOT.length; i++){ //datasetのデータには「,」もデータの一つとしてあるため、i+2とすることで回避
                 console.log("for: input1_NOT[i]: " + input1_NOT[i]);
                 let num = input1_NOT[i];
                 answer_NOT.push( num == 1 ? 0 : 1); //インプットが１だったら0,0だったら1をプッシュ
             }
             console.log(answer_NOT);
-            target_button.dataset.timechart = answer_NOT;
-            return answer_NOT;
+            target_button.parentNode.dataset.timechart = answer_NOT;
+            return answer_NOT; // ","なし
     }
     
 }
