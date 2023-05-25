@@ -42,6 +42,12 @@ var mo = new MutationObserver(function(record, observer) { //変化した際の�
 //出力ボタンにイベントを設定
 let do_output_button = document.getElementById("do_output");
 do_output_button.addEventListener("click", (event) => {
+    let final_output_button = document.getElementById("final_output");
+    //console.log(final_output_button.dataset.line_end);
+    final_output_button.dataset.timechart = culc_outputs(final_output_button.dataset.line_end);
+    
+
+    /*
     let time = document.getElementById("time");
     let clear_time = time.textContent;
     if(event.target.parentNode.dataset.input == event.target.parentNode.dataset.output){
@@ -55,6 +61,7 @@ do_output_button.addEventListener("click", (event) => {
     }else{
         window.alert("死");
     }
+    */
 })
 
 
@@ -85,7 +92,7 @@ function setting(){
                 event.target.style.backgroundColor = "";
                 chosen_buttons.pop();
             }
-            
+            /*　信号をoutputへ計算して代入
             if(event.target.dataset.button_type == "output"){ //outputボタンが選択されたときに実行。入力されている信号から出力用の信号を計算する。
                 switch(event.target.parentNode.dataset.type){
                     case "AND":
@@ -128,7 +135,7 @@ function setting(){
                         break;
                 }
             }
-            
+            */
             if(chosen_buttons.length == 2){ //二つ選択されたときに実行。選択されている二つのゲートに対しての処理
                 let leftside_Xcoordinate = chosen_buttons[0].getBoundingClientRect().left;
                 //chosen_buttonsの[0]の方が左側にあるようにする
@@ -256,7 +263,7 @@ function setting(){
                             end_lines_id = get_lineIds(temp_end_lines_id); //選択されたボタンの始点側に接続されているボタンのリスト
                         }
                         
-                        
+                        /*  信号をinputへ代入
                         //左(timechart)から右( input(1 or 2) )に代入
                         chosen_buttons[1].dataset.input = chosen_buttons[0].dataset.timechart; //inputボタンに信号を代入
                         //---------------↓gate_parentのdatasetにinput1,input2として保持させる-------------
@@ -268,6 +275,8 @@ function setting(){
                             chosen_buttons[1].parentNode.dataset.input = chosen_buttons[1].dataset.input;
                         }
                         //------------------------------------------------------------------------------
+                        */
+
                         for(let chosen_button of chosen_buttons){ //色を透明に戻す
                             chosen_button.style.backgroundColor = "";
                         }
@@ -276,7 +285,6 @@ function setting(){
                         start_lines_id.push(line._id);
                         end_lines_id.push(line._id);
                         console.log(typeof(end_lines_id));
-                        console.log("test2");
                         lines[start_lines_id[ start_lines_id.length - 1]] = line; //現在回路上にある線をインデックスを線のidと一致させて管理
                         chosen_buttons[0].dataset.line_start = start_lines_id;
                         chosen_buttons[1].dataset.line_end = end_lines_id;
@@ -344,17 +352,80 @@ function get_lineIds(temp_lines_id){ //「'」入りの配列を「'」無し配
     return lines_id;
 }
 
-/*
-let button_test = document.getElementById("button_test");
-button_test.addEventListener("click", (event) => {
-    let test_gates = document.getElementsByClassName("ioButton");
-    let line = setLines(test_gates[0], test_gates[4]);
-    let line_id = line.position()._id;
-    lines[line_id] = line;
-    console.log(lines);
+function culc_outputs(line_end){
+    let buttons = document.getElementsByClassName("ioButton");
+    
+    let target_button = null; //引数のline_endをもつボタンと同じ線をline_startで共有するボタンを入れる
+
+    //引数のline_endをもつボタンと同じ線をline_startで共有するボタンを探索
+    for(let button of buttons){
+        if(button.dataset.line_start != undefined){ //線がつながっていないボタンを除外
+            console.log("test");
+            if(button.dataset.line_start.length > 1){ //line_startに複数の線のidがあるとき、lengthメソッドが使えることを利用する
+                console.log("2test")
+                for(let i = 0; i < button.dataset.line_start.length; i = i + 2){ //line_startの配列に格納されている線のidをチェック
+                    if(button.dataset.line_start[i] == line_end){
+                        target_button = button;
+                        break;
+                    }
+                }
+            }else{
+                console.log("1test" + button.dataset.line_start);
+                if(button.dataset.line_start == line_end){
+                    console.log("ここ");
+                    target_button = button;
+                    break;
+                }
+            }
+            if(target_button != null) break; //線の左端のボタンを見つけたら探索終了
+        }
     }
-);
-*/
+    console.log("左端のボタンは" + target_button); //見つけたボタンを表示
+
+    //見つけたボタンがどの論理ゲートの物かで処理を分ける
+    switch(target_button.parentNode.dataset.type){
+        case "output": 
+            console.log("output");
+            return target_button.dataset.timechart; //入力される信号を返す
+        case "AND":
+            console.log("AND");
+            let input1_AND = culc_outputs(target_button.parentNode.dataset.connecting1); //再帰的に求める
+            let input2_AND = culc_outputs(target_button.parentNode.dataset.connecting2); //再帰的に求める
+            let answer_AND = [];
+            for(let i = 0; i < input1_AND.length; i = i + 2){ //datasetのデータには「,」もデータの一つとしてあるため、i+2とすることで回避
+                answer_AND.push(input1_AND[i] * input2_AND[i]);
+            }
+            console.log(answer_AND);
+            target_button.dataset.timechart = answer_AND;
+            return answer_AND;
+        case "OR": 
+            console.log("OR");
+            let input1_OR = culc_outputs(target_button.parentNode.dataset.connecting1); //再帰的に求める
+            let input2_OR = culc_outputs(target_button.parentNode.dataset.connecting2); //再帰的に求める
+            let answer_OR = [];
+            for(let i = 0; i < input1_OR.length; i = i + 2){ //datasetのデータには「,」もデータの一つとしてあるため、i+2とすることで回避
+                let num = input1_OR[i] + input2_OR[i];
+                answer_OR.push( num >= 1 ? 1 : 0); //二つのインプットの和が１以上だったら１をプッシュ
+            }
+            console.log(answer_OR);
+            target_button.dataset.timechart = answer_OR;
+            return answer_OR;
+        case "NOT":
+            console.log("NOT");
+            let input1_NOT = culc_outputs(target_button.parentNode.dataset.connecting1); //再帰的に求める
+            let answer_NOT = [];
+            console.log("input1_NOT: " + input1_NOT);
+            for(let i = 0; i < input1_NOT.length; i = i + 2){ //datasetのデータには「,」もデータの一つとしてあるため、i+2とすることで回避
+                console.log("for: input1_NOT[i]: " + input1_NOT[i]);
+                let num = input1_NOT[i];
+                answer_NOT.push( num == 1 ? 0 : 1); //インプットが１だったら0,0だったら1をプッシュ
+            }
+            console.log(answer_NOT);
+            target_button.dataset.timechart = answer_NOT;
+            return answer_NOT;
+    }
+    
+}
 
 
 //監視する「もの」の指定（必ず1つ以上trueにする）
