@@ -45,7 +45,13 @@ do_output_button.addEventListener("click", (event) => {
     let time = document.getElementById("time");
     let clear_time = time.textContent;
     if(event.target.parentNode.dataset.input == event.target.parentNode.dataset.output){
-        window.alert("正解\nクリアタイムは" + clear_time + "です");
+        let result = confirm("正解\nクリアタイムは" + clear_time + "です\n ツイートしますか");
+        if(result){
+            let string = "https://twitter.com/intent/tweet?text=logicCircuitを" + clear_time + "でクリアしました";
+            window.location = string;
+        }else{
+            //
+        }
     }else{
         window.alert("死");
     }
@@ -79,7 +85,7 @@ function setting(){
                 event.target.style.backgroundColor = "";
                 chosen_buttons.pop();
             }
-
+            
             if(event.target.dataset.button_type == "output"){ //outputボタンが選択されたときに実行。入力されている信号から出力用の信号を計算する。
                 switch(event.target.parentNode.dataset.type){
                     case "AND":
@@ -122,10 +128,11 @@ function setting(){
                         break;
                 }
             }
-
+            
             if(chosen_buttons.length == 2){ //二つ選択されたときに実行。選択されている二つのゲートに対しての処理
                 let leftside_Xcoordinate = chosen_buttons[0].getBoundingClientRect().left;
-                if(leftside_Xcoordinate > chosen_buttons[1].getBoundingClientRect().left){ //chosen_buttonsの[0]の方が左側にあるようにする
+                //chosen_buttonsの[0]の方が左側にあるようにする
+                if(leftside_Xcoordinate > chosen_buttons[1].getBoundingClientRect().left){ 
                     let temp = chosen_buttons[1];
                     chosen_buttons[1] = chosen_buttons[0];
                     chosen_buttons[0] = temp;
