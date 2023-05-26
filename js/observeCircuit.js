@@ -22,54 +22,39 @@ var mo = new MutationObserver(function(record, observer) { //変化した際の�
             onMove: function () {
                 if(gate.dataset.type == "AND" || gate.dataset.type == "OR"){//接続する線の数が違うから分けて処理する
                     if(gate.dataset.connecting1 != undefined){
-                        if(gate.dataset.connecting1.length > 1){ //複数本つながってる時とそうでないときに分けて処理
-                            for(let i = 0; i < gate.dataset.connecting1.length; i = i + 2){
-                                console.log(gate.dataset.connecting1[i])
-                                lines[gate.dataset.connecting1[i]].position();
-                            }
-                        }else{
-                            lines[gate.dataset.connecting1].position();
+                        let new_connecting1 = gate.dataset.connecting1.split(",");
+                        for(let i = 0; i < new_connecting1.length; i++){
+                            console.log(new_connecting1[i])
+                            lines[new_connecting1[i]].position();
                         }
                     }
                     if(gate.dataset.connecting2 != undefined){
-                        if(gate.dataset.connecting2.length > 1){ //複数本つながってる時とそうでないときに分けて処理
-                            for(let i = 0; i < gate.dataset.connecting2.length; i = i + 2){
-                                console.log(gate.dataset.connecting2[i])
-                                lines[gate.dataset.connecting2[i]].position();
-                            }
-                        }else{
-                            lines[gate.dataset.connecting2].position();
+                        let new_connecting2 = gate.dataset.connecting2.split(",");
+                        for(let i = 0; i < new_connecting2.length; i++){
+                            console.log(new_connecting2[i])
+                            lines[new_connecting2[i]].position();
                         }
                     }
                     if(gate.dataset.connecting3 != undefined){
-                        if(gate.dataset.connecting3.length > 1){ //複数本つながってる時とそうでないときに分けて処理
-                            for(let i = 0; i < gate.dataset.connecting3.length; i = i + 2){
-                                console.log(gate.dataset.connecting3[i])
-                                lines[gate.dataset.connecting3[i]].position();
-                            }
-                        }else{
-                            lines[gate.dataset.connecting3].position();
+                        let new_connecting3 = gate.dataset.connecting3.split(",");
+                        for(let i = 0; i < new_connecting3.length; i++){
+                            console.log(new_connecting3[i])
+                            lines[new_connecting3[i]].position();
                         }
                     } 
                 }else{
                     if(gate.dataset.connecting1 != undefined){
-                        if(gate.dataset.connecting1.length > 1){ //複数本つながってる時とそうでないときに分けて処理
-                            for(let i = 0; i < gate.dataset.connecting1.length; i = i + 2){
-                                console.log(gate.dataset.connecting1[i])
-                                lines[gate.dataset.connecting1[i]].position();
-                            }
-                        }else{
-                            lines[gate.dataset.connecting1].position();
+                        let new_connecting1 = gate.dataset.connecting1.split(",");
+                        for(let i = 0; i < new_connecting1.length; i++){
+                            console.log(new_connecting1[i])
+                            lines[new_connecting1[i]].position();
                         }
                     }
                     if(gate.dataset.connecting2 != undefined){
-                        if(gate.dataset.connecting2.length > 1){ //複数本つながってる時とそうでないときに分けて処理
-                            for(let i = 0; i < gate.dataset.connecting2.length; i = i + 2){
-                                console.log(gate.dataset.connecting2[i])
-                                lines[gate.dataset.connecting2[i]].position();
-                            }
-                        }else{
-                            lines[gate.dataset.connecting2].position();
+                        let new_connecting2 = gate.dataset.connecting2.split(",");
+                        for(let i = 0; i < new_connecting2.length; i++){
+                            console.log(new_connecting2[i])
+                            lines[new_connecting2[i]].position();
                         }
                     }
                 }
@@ -88,13 +73,13 @@ var mo = new MutationObserver(function(record, observer) { //変化した際の�
 let do_output_button = document.getElementById("do_output");
 do_output_button.addEventListener("click", (event) => {
     let final_output_button = document.getElementById("final_output");
-    //console.log(final_output_button.dataset.line_end);
     final_output_button.dataset.timechart = culc_outputs(final_output_button.dataset.line_end);
-    
+    final_output_button.parentNode.dataset.input = culc_outputs(final_output_button.dataset.line_end);
 
-    /*
     let time = document.getElementById("time");
     let clear_time = time.textContent;
+    console.log(event.target.parentNode.dataset.input)
+    console.log(event.target.parentNode.dataset.output)
     if(event.target.parentNode.dataset.input == event.target.parentNode.dataset.output){
         let result = confirm("正解\nクリアタイムは" + clear_time + "です\n ツイートしますか");
         if(result){
@@ -106,7 +91,7 @@ do_output_button.addEventListener("click", (event) => {
     }else{
         window.alert("死");
     }
-    */
+    
 })
 
 
@@ -329,7 +314,6 @@ function setting(){
                         let line = setLines(chosen_buttons[0], chosen_buttons[1]);
                         start_lines_id.push(line._id);
                         end_lines_id.push(line._id);
-                        console.log(typeof(end_lines_id));
                         lines[start_lines_id[ start_lines_id.length - 1]] = line; //現在回路上にある線をインデックスを線のidと一致させて管理
                         chosen_buttons[0].dataset.line_start = start_lines_id;
                         chosen_buttons[1].dataset.line_end = end_lines_id;
@@ -387,12 +371,8 @@ function setting(){
 
 }
 
-function get_lineIds(temp_lines_id){ //「'」入りの配列を「'」無し配列に変更
-    let lines_id = [];//選択されたボタンの始点側に接続されているボタンのリスト
-    console.log()
-    for(let i = 0; i < temp_lines_id.length; i = i + 2){
-        lines_id[i/2] = temp_lines_id[i];
-    }
+function get_lineIds(temp_lines_id){ //「,」入りの配列を「,」無し配列に変更
+    let lines_id = temp_lines_id.split(",")
 
     return lines_id;
 }
@@ -403,21 +383,15 @@ function culc_outputs(line_end){
     let target_button = null; //引数のline_endをもつボタンと同じ線をline_startで共有するボタンを入れる
 
     //引数のline_endをもつボタンと同じ線をline_startで共有するボタンを探索
+    console.log(line_end + "を探す")
     for(let button of buttons){
         if(button.dataset.line_start != undefined){ //線がつながっていないボタンを除外
             console.log("test");
-            if(button.dataset.line_start.length > 1){ //line_startに複数の線のidがあるとき、lengthメソッドが使えることを利用する
-                console.log("2test")
-                for(let i = 0; i < button.dataset.line_start.length; i = i + 2){ //line_startの配列に格納されている線のidをチェック
-                    if(button.dataset.line_start[i] == line_end){
-                        target_button = button;
-                        break;
-                    }
-                }
-            }else{
-                console.log("1test" + button.dataset.line_start);
-                if(button.dataset.line_start == line_end){
-                    console.log("ここ");
+            let new_line_start = button.dataset.line_start.split(",");
+            console.log(new_line_start);
+            console.log("2test")
+            for(let i = 0; i < new_line_start.length; i++){ //line_startの配列に格納されている線のidをチェック
+                if(new_line_start[i] == line_end){
                     target_button = button;
                     break;
                 }
